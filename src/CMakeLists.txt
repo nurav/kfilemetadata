@@ -7,6 +7,11 @@ add_library(KF5FileMetaData
     propertyinfo.cpp
     typeinfo.cpp
     usermetadata.cpp
+    writedata.cpp
+    writer.cpp
+    writerplugin.cpp
+    writercollection.cpp
+    simplewritedata.cpp
 )
 
 add_library(KF5::FileMetaData ALIAS KF5FileMetaData)
@@ -40,6 +45,9 @@ ecm_generate_headers(KF5FileMetaData_CamelCase_HEADERS
     Types
     TypeInfo
     UserMetaData
+    Writer
+    WriterPlugin
+    WriterCollection
 
     PREFIX kfilemetadata
     REQUIRED_HEADERS KF5FileMetaData_HEADERS
@@ -64,3 +72,5 @@ install(FILES
 )
 
 add_subdirectory(extractors)
+
+add_subdirectory(writers)
