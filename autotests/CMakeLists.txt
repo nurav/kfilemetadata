@@ -97,7 +97,7 @@ if(TAGLIB_FOUND)
         LINK_LIBRARIES Qt5::Test KF5::FileMetaData ${TAGLIB_LIBRARIES}
     )
 
-    ecm_add_test(taglibwritertest.cpp ../src/writers/taglibwriter.cpp ../src/extractors/taglibextractor.cpp
+    ecm_add_test(taglibwritertest.cpp ../src/writers/taglibwriter.cpp
         TEST_NAME "taglibwritertest"
         LINK_LIBRARIES Qt5::Test KF5::FileMetaData ${TAGLIB_LIBRARIES}
     )
