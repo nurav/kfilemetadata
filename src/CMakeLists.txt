@@ -44,6 +44,7 @@ ecm_generate_headers(KF5FileMetaData_CamelCase_HEADERS
     Types
     TypeInfo
     UserMetaData
+    WriteData
     Writer
     WriterPlugin
     WriterCollection
