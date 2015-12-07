@@ -17,16 +17,16 @@ public:
     WriteData(const QString& url, const QString& mimetype);
     WriteData(const WriteData& rhs);
     virtual ~WriteData();
+    WriteData& operator=(const WriteData& rhs);
+    bool operator==(const WriteData& rhs) const;
     
     QString inputUrl() const;
 
     QString inputMimetype() const;
 
-    virtual void add(Property::Property property, const QVariant& value) = 0;
+    virtual void add(Property::Property property, const QVariant& value);
 
-    virtual void addType(Type::Type type) = 0;
-
-    virtual PropertyMap getAllProperties() = 0;
+    virtual PropertyMap getAllProperties() const;
 
 private:
     class Private;

@@ -8,6 +8,7 @@ class WriteData::Private {
 public:
     QString url;
     QString mimetype;
+    PropertyMap properties;
 };
 
 WriteData::WriteData(const QString& url, const QString& mimetype)
@@ -25,6 +26,22 @@ WriteData::WriteData(const WriteData& rhs)
 {
 }
 
+WriteData& WriteData::operator=(const WriteData& rhs)
+{
+    *d = *rhs.d;
+    return *this;
+}
+
+bool WriteData::operator==(const WriteData& rhs) const
+{
+    return d->properties == rhs.d->properties;
+}
+
+void WriteData::add(Property::Property property, const QVariant& value)
+{
+    d->properties.insertMulti(property, value);
+}
+
 WriteData::~WriteData()
 {
     delete d;
@@ -38,5 +55,10 @@ QString WriteData::inputUrl() const
 QString WriteData::inputMimetype() const
 {
     return d->mimetype;
+}
+
+PropertyMap WriteData::getAllProperties() const
+{
+    return d->properties;
 }
 
