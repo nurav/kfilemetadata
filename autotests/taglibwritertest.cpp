@@ -51,8 +51,7 @@ void TagLibWriterTest::test()
 
 void TagLibWriterTest::cleanupTestCase()
 {
-    QFile testFile(testFilePath(TEST_FILENAME));
-    testFile.deleteLater();
+    QFile::remove(testFilePath(TEST_FILENAME));
 }
 
 QTEST_MAIN(TagLibWriterTest)
