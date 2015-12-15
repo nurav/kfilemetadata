@@ -33,7 +33,7 @@ void TagLibWriterTest::test()
     WriteData data(testFilePath(TEST_FILENAME), "audio/opus");
     data.add(Property::Title, "Title");
     data.add(Property::Artist, "Artist");
-    writerPlugin->write(&data);
+    writerPlugin->write(data);
 
     /* Testing whether data was correctly written */
 // Adding taglibextractor.cpp in ecm_add_tests leads to weird MOC errors, so just checking the filesize

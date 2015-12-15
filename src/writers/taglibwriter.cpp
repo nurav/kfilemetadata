@@ -29,11 +29,11 @@ QStringList TagLibWriter::writeMimetypes() const
     return types;
 }
 
-void TagLibWriter::write(WriteData *data)
+void TagLibWriter::write(const WriteData& data)
 {
-    const QString fileUrl = data->inputUrl();
-    const QString mimeType = data->inputMimetype();
-    const PropertyMap properties = data->getAllProperties();
+    const QString fileUrl = data.inputUrl();
+    const QString mimeType = data.inputMimetype();
+    const PropertyMap properties = data.getAllProperties();
 
     TagLib::FileRef file(fileUrl.toUtf8().constData(), true);
     if (file.isNull()) {
@@ -46,12 +46,12 @@ void TagLibWriter::write(WriteData *data)
     TagLib::String artists;
 
     if (properties.contains(Property::Title)) {
-        title = q2t(properties[Property::Title].toString());
+        title = q2t(properties.value(Property::Title).toString());
         tags->setTitle(title);
     }
 
     if (properties.contains(Property::Artist)) {
-        artists = q2t(properties[Property::Artist].toString());
+        artists = q2t(properties.value(Property::Artist).toString());
         tags->setArtist(artists);
     }
 

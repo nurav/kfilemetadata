@@ -16,7 +16,7 @@ class KFILEMETADATA_EXPORT Writer
 public:
     virtual ~Writer();
 
-    void write(WriteData* result);
+    void write(const WriteData& data);
     QStringList mimetypes() const;
 
 private:

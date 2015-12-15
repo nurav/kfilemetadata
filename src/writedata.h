@@ -4,6 +4,7 @@
 #include "kfilemetadata_export.h"
 
 #include <QString>
+#include <QMap>
 #include <QVariant>
 
 #include "properties.h"
@@ -24,9 +25,9 @@ public:
 
     QString inputMimetype() const;
 
-    virtual void add(Property::Property property, const QVariant& value);
+    void add(Property::Property property, const QVariant& value);
 
-    virtual PropertyMap getAllProperties() const;
+    QMap<Property::Property, QVariant> getAllProperties() const;
 
 private:
     class Private;

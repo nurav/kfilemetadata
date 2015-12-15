@@ -15,7 +15,7 @@ class TagLibWriter : public WriterPlugin
 public:
     TagLibWriter(QObject* parent = 0);
 
-    void write(WriteData* data) Q_DECL_OVERRIDE;
+    void write(const WriteData& data) Q_DECL_OVERRIDE;
     QStringList writeMimetypes() const Q_DECL_OVERRIDE;
 };
 

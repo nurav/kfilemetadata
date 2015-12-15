@@ -18,7 +18,7 @@ public:
 
     virtual QStringList writeMimetypes() const = 0;
 
-    virtual void write(WriteData* data) = 0;
+    virtual void write(const WriteData& data) = 0;
 };
 }
 

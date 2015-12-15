@@ -15,7 +15,7 @@ Writer::~Writer()
     delete d;
 }
 
-void Writer::write(WriteData* data)
+void Writer::write(const WriteData& data)
 {
     d->m_plugin->write(data);
 }
