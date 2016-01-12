@@ -10,6 +10,6 @@ if(TAGLIB_FOUND)
 
     install(
     TARGETS kfilemetadata_taglibwriter
-    DESTINATION ${PLUGIN_INSTALL_DIR}/kf5/kfilemetadata)
+    DESTINATION ${PLUGIN_INSTALL_DIR}/kf5/kfilemetadata/writers)
 
 endif()

@@ -7,6 +7,7 @@
 #include "writer_p.h"
 #include "writerplugin.h"
 #include "writercollection.h"
+#include "externalwriter.h"
 
 using namespace KFileMetaData;
 
@@ -40,11 +41,14 @@ QList<Writer*> WriterCollection::Private::allWriters() const
 {
     QStringList plugins;
     QStringList pluginPaths;
+    QStringList externalPlugins;
+    QStringList externalPluginPaths;
 
     QStringList paths = QCoreApplication::libraryPaths();
     Q_FOREACH (const QString& libraryPath, paths) {
-        QString path(libraryPath + QStringLiteral("/kf5/kfilemetadata"));
+        QString path(libraryPath + QStringLiteral("/kf5/kfilemetadata/writers"));
         QDir dir(path);
+        QDir externalPluginDir(path.append(QStringLiteral("/externalwriters")));
 
         if (!dir.exists()) {
             continue;
@@ -60,10 +64,21 @@ QList<Writer*> WriterCollection::Private::allWriters() const
             plugins << fileName;
             pluginPaths << dir.absoluteFilePath(fileName);
         }
+
+        // For external plugins, we look into the directories
+        QStringList externalPluginEntryList = externalPluginDir.entryList(QDir::Dirs);
+        Q_FOREACH (const QString& externalPlugin, externalPluginEntryList) {
+            if (externalPlugins.contains(externalPlugin))
+                continue;
+
+            externalPlugins << externalPlugin;
+            externalPluginPaths << externalPluginDir.absoluteFilePath(externalPlugin);
+        }
     }
     plugins.clear();
+    externalPlugins.clear();
 
-    QList<Writer*> Writers;
+    QList<Writer*> writers;
     Q_FOREACH (const QString& pluginPath, pluginPaths) {
         QPluginLoader loader(pluginPath);
 
@@ -80,7 +95,7 @@ QList<Writer*> WriterCollection::Private::allWriters() const
                 Writer* writer = new Writer;
                 writer->d->m_plugin = plugin;
 
-                Writers << writer;
+                writers << writer;
             } else {
                 qDebug() << "Plugin could not be converted to an WriterPlugin";
                 qDebug() << pluginPath;
@@ -91,7 +106,15 @@ QList<Writer*> WriterCollection::Private::allWriters() const
         }
     }
 
-    return Writers;
+    Q_FOREACH (const QString& externalPluginPath, externalPluginPaths) {
+        ExternalWriter *plugin = new ExternalWriter(externalPluginPath);
+        Writer* writer = new Writer;
+        writer->d->m_plugin = plugin;
+
+        writers << writer;
+    }
+
+    return writers;
 }
 
 QList<Writer*> WriterCollection::fetchWriters(const QString& mimetype) const
