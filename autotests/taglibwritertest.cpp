@@ -4,6 +4,7 @@
 #include "writedata.h"
 #include "simpleextractionresult.h"
 #include "extractors/taglibextractor.h"
+#include "externalwriter.h"
 
 #include <QDebug>
 #include <QTest>
@@ -34,6 +35,11 @@ void TagLibWriterTest::test()
     data.add(Property::Title, "Title");
     data.add(Property::Artist, "Artist");
     writerPlugin->write(data);
+
+    ExternalWriter writer(QStringLiteral("/home/varun/Downloads/writer"));
+    qDebug() << writer.writeMimetypes();
+
+    writer.write(data);
 
     /* Testing whether data was correctly written */
 // Adding taglibextractor.cpp in ecm_add_tests leads to weird MOC errors, so just checking the filesize
