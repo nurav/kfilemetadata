@@ -9,6 +9,8 @@
 #include "writercollection.h"
 #include "externalwriter.h"
 
+#include "config-kfilemetadata.h"
+
 using namespace KFileMetaData;
 
 class WriterCollection::Private {
@@ -48,7 +50,6 @@ QList<Writer*> WriterCollection::Private::allWriters() const
     Q_FOREACH (const QString& libraryPath, paths) {
         QString path(libraryPath + QStringLiteral("/kf5/kfilemetadata/writers"));
         QDir dir(path);
-        QDir externalPluginDir(path.append(QStringLiteral("/externalwriters")));
 
         if (!dir.exists()) {
             continue;
@@ -64,18 +65,19 @@ QList<Writer*> WriterCollection::Private::allWriters() const
             plugins << fileName;
             pluginPaths << dir.absoluteFilePath(fileName);
         }
-
-        // For external plugins, we look into the directories
-        QStringList externalPluginEntryList = externalPluginDir.entryList(QDir::Dirs);
-        Q_FOREACH (const QString& externalPlugin, externalPluginEntryList) {
-            if (externalPlugins.contains(externalPlugin))
-                continue;
-
-            externalPlugins << externalPlugin;
-            externalPluginPaths << externalPluginDir.absoluteFilePath(externalPlugin);
-        }
     }
     plugins.clear();
+
+    QDir externalPluginDir(QStringLiteral(LIBEXEC_INSTALL_DIR) + QStringLiteral("/kfilemetadata/externalwriters"));
+    // For external plugins, we look into the directories
+    QStringList externalPluginEntryList = externalPluginDir.entryList(QDir::Dirs);
+    Q_FOREACH (const QString& externalPlugin, externalPluginEntryList) {
+        if (externalPlugins.contains(externalPlugin))
+            continue;
+
+        externalPlugins << externalPlugin;
+        externalPluginPaths << externalPluginDir.absoluteFilePath(externalPlugin);
+    }
     externalPlugins.clear();
 
     QList<Writer*> writers;
@@ -102,7 +104,7 @@ QList<Writer*> WriterCollection::Private::allWriters() const
             }
         }
         else {
-            qDebug() << "Plugin could not creaate instance" << pluginPath;
+            qDebug() << "Plugin could not create instance" << pluginPath;
         }
     }
 

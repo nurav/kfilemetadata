@@ -82,16 +82,16 @@ void ExternalWriter::write(const WriteData& data)
     rootObject[QStringLiteral("properties")] = propertiesObject;
     writeData.setObject(rootObject);
 
-    QStringList writeArgs({ QString::fromUtf8(writeData.toJson()) });
     QProcess writerProcess;
-
     QString execCommand;
-
     if (d->language == QStringLiteral("python")) {
         execCommand = QStringLiteral("python ");
     }
     execCommand += d->mainPath;
-    writerProcess.start(d->mainPath, writeArgs, QIODevice::ReadOnly);
+
+    writerProcess.start(d->mainPath, QIODevice::ReadWrite);
+    writerProcess.write(writeData.toJson());
+    writerProcess.closeWriteChannel();
     writerProcess.waitForFinished(5000);
 
     qDebug() << "Writer says: " + writerProcess.readAll();

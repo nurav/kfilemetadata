@@ -72,6 +72,8 @@ install(FILES
     DESTINATION ${KF5_INCLUDE_INSTALL_DIR}/KFileMetaData/KFileMetaData COMPONENT Devel
 )
 
+configure_file(config-kfilemetadata.h.in ${CMAKE_CURRENT_BINARY_DIR}/config-kfilemetadata.h)
+
 add_subdirectory(extractors)
 
 add_subdirectory(writers)
