@@ -39,6 +39,9 @@ void TagLibWriterTest::test()
 
     WriterCollection wc;
     QList<Writer*> writers = wc.fetchWriters(QStringLiteral("application/text"));
+    Q_FOREACH(Writer* writer, writers) {
+        writer->write(data);
+    }
 
     /* Testing whether data was correctly written */
 // Adding taglibextractor.cpp in ecm_add_tests leads to weird MOC errors, so just checking the filesize

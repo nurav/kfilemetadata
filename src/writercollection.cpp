@@ -70,7 +70,7 @@ QList<Writer*> WriterCollection::Private::allWriters() const
 
     QDir externalPluginDir(QStringLiteral(LIBEXEC_INSTALL_DIR) + QStringLiteral("/kfilemetadata/externalwriters"));
     // For external plugins, we look into the directories
-    QStringList externalPluginEntryList = externalPluginDir.entryList(QDir::Dirs);
+    QStringList externalPluginEntryList = externalPluginDir.entryList(QDir::Dirs | QDir::NoDotAndDotDot);
     Q_FOREACH (const QString& externalPlugin, externalPluginEntryList) {
         if (externalPlugins.contains(externalPlugin))
             continue;
