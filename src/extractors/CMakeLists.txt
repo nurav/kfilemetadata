@@ -81,6 +81,19 @@ if(EPUB_FOUND)
 endif()
 
 #
+# External Extractors
+#
+add_library(kfilemetadata_externalextractor MODULE externalextractor.cpp)
+
+target_link_libraries( kfilemetadata_externalextractor
+    KF5::FileMetaData
+)
+
+install(
+TARGETS kfilemetadata_externalextractor
+DESTINATION ${PLUGIN_INSTALL_DIR}/kf5/kfilemetadata)
+
+#
 # Plain Text
 #
 add_library(kfilemetadata_plaintextextractor MODULE plaintextextractor.cpp)
@@ -170,3 +183,5 @@ if (QMOBIPOCKET_FOUND)
     DESTINATION ${PLUGIN_INSTALL_DIR}/kf5/kfilemetadata)
 
 endif()
+
+add_subdirectory(externalextractors)

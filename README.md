@@ -48,6 +48,34 @@ The ExtractionResult should also be given a list of types. These types are
 defined in the `types.h` header. The correspond to a higher level overview
 of the files which the user typically expects.
 
+## Writing an external file extractor
+
+Extractors can also be written in other languages and installed into the system,
+and KFileMetaData will be able to find them and use them.
+
+An external file extractor must be an independently executable file (a binary,
+script with a hashbang line with the executable permission set, a batch file or
+cmd script, etc). They must be named kfilemetadata_extractor_<something> (resolvable
+with the pattern kfilemetadata_extractor_*).
+
+KFileMetaData will look for external extractors in this order - first, in the
+current working directory, then in the list of paths given by the environment
+variable KFILEMETADATA_EXTRACTOR_PATH, and finally in the list of paths in the
+system environment variable PATH. For any given mime type, the extractor that is
+discovered first will be used.
+
+An external extractor can be executed one of two ways.
+
+* `extractor --mimetypes` - when executed like this, it should print to the
+  standard output the mimetypes for all the file types that it can handle, one
+  per line.
+* `extractor filename` - when executed like this, it should extract all the
+  metadata from the file, and emit a JSON file to the standard output. The root
+  item should be an object, with the keys being the property names as defined in
+  propertyinfo.cpp, function PropertyInfo::fromName(). One extra key should be
+  present - "typeInfo", with the data being the type as defined in types.h, in
+  lowercase.
+
 ## Links
 - Mailing list: <https://mail.kde.org/mailman/listinfo/kde-devel>
 - IRC channel: #kde-devel on Freenode
