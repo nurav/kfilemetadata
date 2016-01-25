@@ -1,6 +1,7 @@
 /*
  * This file is part of the KFileMetaData project
  * Copyright (C) 2016  Varun Joshi <varunj.1011@gmail.com>
+ * Copyright (C) 2015  Boudhayan Gupta <bgupta@kde.org>
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -27,13 +28,14 @@
 #include <QJsonObject>
 #include <QJsonArray>
 
-#include "externalwriter.h"
+#include "externalextractor.h"
 #include "properties.h"
 #include "propertyinfo.h"
+#include "typeinfo.h"
 
 using namespace KFileMetaData;
 
-class ExternalWriter::Private {
+class ExternalExtractor::Private {
 public:
     QString path;
     QStringList writeMimetypes;
@@ -41,13 +43,13 @@ public:
 };
 
 
-ExternalWriter::ExternalWriter(QObject* parent)
-    : WriterPlugin(parent)
+ExternalExtractor::ExternalExtractor(QObject* parent)
+    : ExtractorPlugin(parent)
 {
 }
 
-ExternalWriter::ExternalWriter(const QString& pluginPath)
-    : WriterPlugin(new QObject()),
+ExternalExtractor::ExternalExtractor(const QString& pluginPath)
+    : ExtractorPlugin(new QObject()),
       d(new Private)
 {
     d->path = pluginPath;
@@ -79,28 +81,20 @@ ExternalWriter::ExternalWriter(const QString& pluginPath)
     d->mainPath = pluginDir.filePath(rootObject[QStringLiteral("main")].toString());
 }
 
-QStringList ExternalWriter::writeMimetypes() const
+QStringList ExternalExtractor::mimetypes() const
 {
     return d->writeMimetypes;
 }
 
-void ExternalWriter::write(const WriteData& data)
+void ExternalExtractor::extract(ExtractionResult* result)
 {
     QJsonDocument writeData;
-    QJsonObject rootObject;
-    QJsonObject propertiesObject;
+    QJsonObject writeRootObject;
+    QByteArray output;
 
-    QMap<Property::Property, QVariant> properties = data.getAllProperties();
-
-    Q_FOREACH(Property::Property property, properties.keys()) {
-        PropertyInfo propertyInfo(property);
-        propertiesObject[propertyInfo.name()] = QJsonValue::fromVariant(properties[property]);
-    }
-
-    rootObject[QStringLiteral("path")] = QJsonValue(data.inputUrl());
-    rootObject[QStringLiteral("mimetype")] = data.inputMimetype();
-    rootObject[QStringLiteral("properties")] = propertiesObject;
-    writeData.setObject(rootObject);
+    writeRootObject[QStringLiteral("path")] = QJsonValue(result->inputUrl());
+    writeRootObject[QStringLiteral("mimetype")] = result->inputMimetype();
+    writeData.setObject(writeRootObject);
 
     QProcess writerProcess;
     writerProcess.start(d->mainPath, QIODevice::ReadWrite);
@@ -108,11 +102,35 @@ void ExternalWriter::write(const WriteData& data)
     writerProcess.closeWriteChannel();
     writerProcess.waitForFinished(5000);
 
-    qDebug() << "Writer says: " + writerProcess.readAll();
+    output = writerProcess.readAll();
+
+    qDebug() << "Extractor says: " << output;
 
     if (writerProcess.exitStatus()) {
-        qDebug() << "Something went wrong while trying to write data";
+        qDebug() << "Something went wrong while trying to extract data";
         return;
     }
 
+    // now we read in the output (which is a standard json format) into the
+    // ExtractionResult
+
+    QJsonDocument extractorData = QJsonDocument::fromJson(output);
+    if (!extractorData.isObject()) {
+        return;
+    }
+    QJsonObject rootObject = extractorData.object();
+
+    Q_FOREACH(auto key, rootObject.keys()) {
+        if (key == QStringLiteral("typeInfo")) {
+            TypeInfo info = TypeInfo::fromName(rootObject.value(key).toString());
+            result->addType(info.type());
+            continue;
+        }
+
+        PropertyInfo info = PropertyInfo::fromName(key);
+        if (info.name() != key) {
+            continue;
+        }
+        result->add(info.property(), rootObject.value(key).toVariant());
+    }
 }

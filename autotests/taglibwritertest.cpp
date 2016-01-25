@@ -4,8 +4,11 @@
 #include "writedata.h"
 #include "simpleextractionresult.h"
 #include "extractors/taglibextractor.h"
+#include "extractionresult.h"
 #include "externalwriter.h"
 #include "writercollection.h"
+#include "externalextractor.h"
+#include "extractorcollection.h"
 
 #include <QDebug>
 #include <QTest>
@@ -41,6 +44,13 @@ void TagLibWriterTest::test()
     QList<Writer*> writers = wc.fetchWriters(QStringLiteral("application/text"));
     Q_FOREACH(Writer* writer, writers) {
         writer->write(data);
+    }
+
+    SimpleExtractionResult* ser = new SimpleExtractionResult(testFilePath(TEST_FILENAME), "audio/opus");
+    ExtractorCollection ec;
+    QList<Extractor*> extractors = ec.fetchExtractors(QStringLiteral("application/text"));
+    Q_FOREACH(Extractor* extractor, extractors) {
+        extractor->extract(ser);
     }
 
     /* Testing whether data was correctly written */

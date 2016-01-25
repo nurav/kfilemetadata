@@ -1,6 +1,7 @@
 /*
  * <one line to give the library's name and an idea of what it does.>
  * Copyright (C) 2012  Vishesh Handa <me@vhanda.in>
+ * Copyright (C)
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -22,11 +23,14 @@
 #include "extractorplugin.h"
 #include "extractorcollection.h"
 #include "extractor_p.h"
+#include "externalextractor.h"
 
 #include <QDebug>
 #include <QCoreApplication>
 #include <QPluginLoader>
 #include <QDir>
+
+#include "config-kfilemetadata.h"
 
 using namespace KFileMetaData;
 
@@ -60,6 +64,8 @@ QList<Extractor*> ExtractorCollection::Private::allExtractors() const
 {
     QStringList plugins;
     QStringList pluginPaths;
+    QStringList externalPlugins;
+    QStringList externalPluginPaths;
 
     QStringList paths = QCoreApplication::libraryPaths();
     Q_FOREACH (const QString& libraryPath, paths) {
@@ -82,6 +88,18 @@ QList<Extractor*> ExtractorCollection::Private::allExtractors() const
         }
     }
     plugins.clear();
+
+    QDir externalPluginDir(QStringLiteral(LIBEXEC_INSTALL_DIR) + QStringLiteral("/kfilemetadata/externalextractors"));
+    // For external plugins, we look into the directories
+    QStringList externalPluginEntryList = externalPluginDir.entryList(QDir::Dirs | QDir::NoDotAndDotDot);
+    Q_FOREACH (const QString& externalPlugin, externalPluginEntryList) {
+        if (externalPlugins.contains(externalPlugin))
+            continue;
+
+        externalPlugins << externalPlugin;
+        externalPluginPaths << externalPluginDir.absoluteFilePath(externalPlugin);
+    }
+    externalPlugins.clear();
 
     QList<Extractor*> extractors;
     Q_FOREACH (const QString& pluginPath, pluginPaths) {
@@ -109,6 +127,14 @@ QList<Extractor*> ExtractorCollection::Private::allExtractors() const
         else {
             qDebug() << "Plugin could not creaate instance" << pluginPath;
         }
+    }
+
+    Q_FOREACH (const QString& externalPluginPath, externalPluginPaths) {
+        ExternalExtractor *plugin = new ExternalExtractor(externalPluginPath);
+        Extractor* extractor = new Extractor;
+        extractor->d->m_plugin = plugin;
+
+        extractors << extractor;
     }
 
     return extractors;
